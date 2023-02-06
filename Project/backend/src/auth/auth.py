@@ -1,13 +1,19 @@
 import json
-from flask import request, _request_ctx_stack
+from flask import request, _request_ctx_stack, Flask
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
 
-AUTH0_DOMAIN = 'udacity-fsnd.auth0.com'
+
+app = Flask(__name__)
+
+
+AUTH0_DOMAIN = 'dev-o1wdglbml3ts8wb2.us.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'dev'
+API_AUDIENCE = 'coffee image'
+
+
 
 ## AuthError Exception
 '''
@@ -30,8 +36,30 @@ class AuthError(Exception):
         it should raise an AuthError if the header is malformed
     return the token part of the header
 '''
+@app.route('/headers')
 def get_token_auth_header():
-   raise Exception('Not Implemented')
+    auth = request.headers.get('Authorization', None)
+    if not auth:
+        raise AuthError({
+            'code': 'authorization_header_missing',
+            'description': 'Authorized header is expected'
+        }, 401)
+
+    parts = auth.split()
+    if parts[0].lower() != 'bearer':
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'No token was found'
+        }, 401)
+    
+    elif len(parts) >2:
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'Authorized header must be bearer token'
+        }, 401)
+    
+    token = parts[1]
+    return token
 
 '''
 @TODO implement check_permissions(permission, payload) method
